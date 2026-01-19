@@ -19,6 +19,13 @@ export const config = {
   
   frontend: {
     url: process.env.FRONTEND_URL || 'http://localhost:3000',
+    // Dominios permitidos para CORS (separados por coma)
+    allowedOrigins: process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+      : [
+          'http://localhost:3000',
+          'https://sinco-academic-frontend.vercel.app',
+        ],
   },
 };
 
