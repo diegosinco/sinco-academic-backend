@@ -3,11 +3,6 @@ import { PrismaClient } from '@prisma/client';
 // Configuración mejorada de Prisma Client con manejo de conexiones
 export const prisma = new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL,
-    },
-  },
 });
 
 // Manejar desconexión limpia
