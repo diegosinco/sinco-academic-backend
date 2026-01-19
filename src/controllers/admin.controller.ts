@@ -71,6 +71,31 @@ export class AdminController {
   }
 
   /**
+   * Actualizar un usuario completo (solo admin)
+   */
+  async updateUser(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { name, phone, avatar, isEmailVerified } = req.body;
+
+      const user = await adminService.updateUser(id, {
+        name,
+        phone,
+        avatar,
+        isEmailVerified,
+      });
+
+      res.status(200).json({
+        success: true,
+        data: user,
+        message: 'Usuario actualizado exitosamente',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Actualizar el rol de un usuario (solo admin)
    */
   async updateUserRole(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {

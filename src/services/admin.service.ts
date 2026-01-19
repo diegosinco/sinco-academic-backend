@@ -117,6 +117,29 @@ export class AdminService {
   }
 
   /**
+   * Actualizar un usuario (campos generales, no password ni email)
+   */
+  async updateUser(userId: string, data: { name?: string; phone?: string; avatar?: string; isEmailVerified?: boolean }) {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        avatar: true,
+        phone: true,
+        isEmailVerified: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return user;
+  }
+
+  /**
    * Eliminar un usuario (soft delete o hard delete según necesidad)
    */
   async deleteUser(userId: string) {

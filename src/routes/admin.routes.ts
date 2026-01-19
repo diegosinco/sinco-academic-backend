@@ -8,6 +8,13 @@ import { validateRequest } from '../middlewares/validateRequest';
 const router = Router();
 
 // Esquemas de validación
+const updateUserSchema = Joi.object({
+  name: Joi.string().min(2).max(100).optional(),
+  phone: Joi.string().optional().allow('', null),
+  avatar: Joi.string().uri().optional().allow('', null),
+  isEmailVerified: Joi.boolean().optional(),
+}).min(1);
+
 const updateUserRoleSchema = Joi.object({
   role: Joi.string().valid('student', 'instructor', 'admin').required(),
 });
@@ -24,6 +31,11 @@ router.use(requireAdmin);
 // Gestión de usuarios (solo admin)
 router.get('/users', adminController.getAllUsers.bind(adminController));
 router.get('/users/:id', adminController.getUserById.bind(adminController));
+router.put(
+  '/users/:id',
+  validateRequest(updateUserSchema),
+  adminController.updateUser.bind(adminController)
+);
 router.put(
   '/users/:id/role',
   validateRequest(updateUserRoleSchema),
