@@ -1,0 +1,88 @@
+# Dependencies
+node_modules/
+# Nota: package-lock.json SÍ debe subirse para mantener versiones consistentes
+yarn.lock
+pnpm-lock.yaml
+
+# Environment variables (NUNCA subir archivos con secretos)
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+# Nota: .env.example SÍ debe subirse como template
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Prisma (los archivos generados se ignoran, pero las migraciones SÍ se suben)
+# Las migraciones en prisma/migrations/ deben subirse
+.prisma/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Optional: Si usas Docker
+# docker-compose.override.yml
+
+# Documentation / Context files (documentación interna de desarrollo - no subir al repo)
+ADMIN_API.md
+API_ARCHITECTURE.md
+CREDENTIALS.md
+DATABASE_SETUP.md
+DEPLOY.md
+FRONTEND_INTEGRATION.md
+FRONTEND_REQUIREMENTS.md
+MIGRATION_GUIDE.md
+NEON_SETUP.md
+POSTMAN_SETUP.md
+PROJECT_CONTEXT.md
+ROLES_PERMISSIONS.md
+SEED_INFO.md
+TEST_AUTH.md
+TEST_CREDENTIALS.md
+TROUBLESHOOTING_DB.md
+TYPES_MODELS.md
+USER_MODEL.md
+postman_collection.json
+# Nota: README.md SÍ debe subirse (es la documentación principal del proyecto)
+
+
+
