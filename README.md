@@ -49,11 +49,11 @@ Edita el archivo `.env` con tus configuraciones:
 
 ```env
 PORT=3001
-NODE_ENV=development
-DATABASE_URL=postgresql://user:password@localhost:5432/sinco_academic?schema=public
-JWT_SECRET=tu-secret-key
-JWT_REFRESH_SECRET=tu-refresh-secret-key
-FRONTEND_URL=http://localhost:3000
+NODE_ENV=
+DATABASE_URL=
+JWT_SECRET=
+JWT_REFRESH_SECRET=
+FRONTEND_URL=
 ```
 
 **Nota**: El backend usa el puerto 3001 por defecto (el frontend Next.js usa 3000)
