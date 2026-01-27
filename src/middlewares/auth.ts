@@ -8,6 +8,8 @@ export interface AuthRequest extends Request {
     id: string;
     email: string;
     role?: string;
+    name?: string;
+    avatar?: string | null;
   };
 }
 
@@ -29,12 +31,16 @@ export const authenticate = (
       id: string;
       email: string;
       role?: string;
+      name?: string;
+      avatar?: string | null;
     };
 
     req.user = {
       id: decoded.id,
       email: decoded.email,
       role: decoded.role,
+      name: decoded.name,
+      avatar: decoded.avatar,
     };
 
     next();

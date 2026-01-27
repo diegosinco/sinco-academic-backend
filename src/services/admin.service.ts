@@ -116,22 +116,11 @@ export class AdminService {
   }
 
   /**
-   * Obtener un usuario por ID
+   * Obtener un usuario por ID (completo, solo para admin)
    */
-  async getUserById(userId: string): Promise<UserPublic> {
+  async getUserById(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        avatar: true,
-        phone: true,
-        isEmailVerified: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
 
     if (!user) {

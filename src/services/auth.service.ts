@@ -10,9 +10,15 @@ export type { AuthTokens, LoginCredentials };
 export type RegisterData = RegisterDTO;
 
 export class AuthService {
-  private generateAccessToken(userId: string, email: string, role: string): string {
+  private generateAccessToken(
+    userId: string,
+    email: string,
+    role: string,
+    name: string,
+    avatar: string | null
+  ): string {
     return jwt.sign(
-      { id: userId, email, role },
+      { id: userId, email, role, name, avatar },
       config.jwt.secret,
       { expiresIn: config.jwt.expiresIn }
     );
@@ -48,7 +54,13 @@ export class AuthService {
     });
 
     // Generar tokens
-    const accessToken = this.generateAccessToken(user.id, user.email, user.role);
+    const accessToken = this.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.name,
+      user.avatar
+    );
     const refreshToken = this.generateRefreshToken(user.id);
 
     // Guardar refresh token
@@ -81,7 +93,13 @@ export class AuthService {
     }
 
     // Generar tokens
-    const accessToken = this.generateAccessToken(user.id, user.email, user.role);
+    const accessToken = this.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+      user.name,
+      user.avatar
+    );
     const refreshToken = this.generateRefreshToken(user.id);
 
     // Guardar refresh token (eliminar tokens anteriores del usuario)
@@ -130,7 +148,13 @@ export class AuthService {
       }
 
       // Generar nuevo access token
-      const accessToken = this.generateAccessToken(user.id, user.email, user.role);
+      const accessToken = this.generateAccessToken(
+        user.id,
+        user.email,
+        user.role,
+        user.name,
+        user.avatar
+      );
 
       return { accessToken };
     } catch (error) {
