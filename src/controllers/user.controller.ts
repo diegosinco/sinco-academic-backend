@@ -77,6 +77,22 @@ export class UserController {
       next(error);
     }
   }
+
+  async changePassword(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user) {
+        throw new Error('Usuario no autenticado');
+      }
+      const { currentPassword, newPassword } = req.body;
+      const result = await userService.changePassword(req.user.id, currentPassword, newPassword);
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const userController = new UserController();

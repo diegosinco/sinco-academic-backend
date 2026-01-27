@@ -1,5 +1,6 @@
 import { prisma } from '../config/database';
-import { NotFoundError } from '../utils/errors';
+import { NotFoundError, UnauthorizedError, ValidationError } from '../utils/errors';
+import { hashPassword, comparePassword } from '../utils/password';
 
 export class UserService {
   async getUserProfile(userId: string) {
@@ -106,6 +107,39 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    // Obtener usuario con contraseña
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundError('Usuario no encontrado');
+    }
+
+    // Validar contraseña actual
+    const isPasswordValid = await comparePassword(currentPassword, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedError('Contraseña actual incorrecta');
+    }
+
+    // Validar que la nueva contraseña sea diferente
+    if (currentPassword === newPassword) {
+      throw new ValidationError('La nueva contraseña debe ser diferente a la actual');
+    }
+
+    // Hash de nueva contraseña
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Actualizar contraseña
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Contraseña actualizada exitosamente' };
   }
 }
 

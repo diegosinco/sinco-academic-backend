@@ -15,11 +15,17 @@ const updateProfileSchema = Joi.object({
   avatar: Joi.string().uri(),
 }).min(1);
 
+const changePasswordSchema = Joi.object({
+  currentPassword: Joi.string().required(),
+  newPassword: Joi.string().min(6).required(),
+});
+
 router.get('/profile', userController.getProfile.bind(userController));
 router.get('/courses', userController.getEnrolledCourses.bind(userController));
 router.get('/certificates', userController.getCertificates.bind(userController));
 router.get('/orders', userController.getOrders.bind(userController));
 router.put('/profile', validateRequest(updateProfileSchema), userController.updateProfile.bind(userController));
+router.put('/change-password', validateRequest(changePasswordSchema), userController.changePassword.bind(userController));
 
 export default router;
 
