@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 // Configuración mejorada de Prisma Client con manejo de conexiones
 export const prisma = new PrismaClient({
-  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  log: ['error', 'warn'],
 });
 
 // Manejar desconexión limpia
@@ -39,8 +39,6 @@ export const connectDatabase = async (): Promise<void> => {
 
     // Verificar conexión con una query simple
     await prisma.$queryRaw`SELECT 1`;
-    
-    console.log('✅ Base de datos PostgreSQL conectada exitosamente');
   } catch (error: any) {
     console.error('❌ Error al conectar a la base de datos:');
     
@@ -75,7 +73,6 @@ export const connectDatabase = async (): Promise<void> => {
 export const disconnectDatabase = async (): Promise<void> => {
   try {
     await prisma.$disconnect();
-    console.log('✅ Desconectado de la base de datos');
   } catch (error) {
     console.error('❌ Error al desconectar de la base de datos:', error);
   }

@@ -1,7 +1,8 @@
 import { prisma } from '../config/database';
-import { NotFoundError, ValidationError } from '../utils/errors';
+import { NotFoundError, ValidationError, ConflictError } from '../utils/errors';
 import { UserRole } from '@prisma/client';
 import type { UserPublic } from '../types';
+import { hashPassword } from '../utils/password';
 
 export class AdminService {
   /**
@@ -14,6 +15,61 @@ export class AdminService {
     });
 
     return user?.role === 'admin';
+  }
+
+  /**
+   * Crear un nuevo usuario (solo admin)
+   */
+  async createUser(data: {
+    name: string;
+    email: string;
+    password: string;
+    role?: UserRole;
+    phone?: string;
+    avatar?: string;
+    isEmailVerified?: boolean;
+  }): Promise<UserPublic> {
+    // Verificar si el usuario ya existe
+    const existingUser = await prisma.user.findUnique({
+      where: { email: data.email },
+    });
+    if (existingUser) {
+      throw new ConflictError('El email ya está registrado');
+    }
+
+    // Validar que el rol sea válido
+    if (data.role && !['student', 'instructor', 'admin'].includes(data.role)) {
+      throw new ValidationError('Rol inválido');
+    }
+
+    // Hash de contraseña
+    const hashedPassword = await hashPassword(data.password);
+
+    // Crear nuevo usuario
+    const user = await prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+        role: data.role || 'student',
+        phone: data.phone,
+        avatar: data.avatar,
+        isEmailVerified: data.isEmailVerified || false,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        avatar: true,
+        phone: true,
+        isEmailVerified: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return user;
   }
 
   /**

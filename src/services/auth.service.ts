@@ -170,7 +170,6 @@ export class AuthService {
     });
 
     // TODO: Enviar email con el resetToken (no el hash)
-    console.log('Token de recuperación:', resetToken);
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {

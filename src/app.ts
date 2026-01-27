@@ -40,11 +40,6 @@ export const createApp = (): Express => {
         return callback(null, true);
       }
       
-      // En desarrollo, mostrar el origen que fue rechazado
-      if (config.nodeEnv === 'development') {
-        console.log('CORS: Origen rechazado:', origin);
-        console.log('CORS: Orígenes permitidos:', allowedOrigins);
-      }
       callback(new Error('No permitido por CORS'));
     },
     credentials: true,

@@ -34,6 +34,33 @@ export class AdminController {
   }
 
   /**
+   * Crear un nuevo usuario (solo admin)
+   */
+  async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { name, email, password, role, phone, avatar, isEmailVerified } = req.body;
+
+      const user = await adminService.createUser({
+        name,
+        email,
+        password,
+        role,
+        phone,
+        avatar,
+        isEmailVerified,
+      });
+
+      res.status(201).json({
+        success: true,
+        data: user,
+        message: 'Usuario creado exitosamente',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Obtener todos los usuarios (solo admin)
    */
   async getAllUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
