@@ -2,6 +2,7 @@ import { Router } from 'express';
 import Joi from 'joi';
 import { authController } from '../controllers/auth.controller';
 import { validateRequest } from '../middlewares/validateRequest';
+import { authLimiter, passwordResetLimiter } from '../middlewares/rateLimit';
 
 const router = Router();
 
@@ -30,13 +31,13 @@ const resetPasswordSchema = Joi.object({
   newPassword: Joi.string().min(6).required(),
 });
 
-// Rutas
-router.post('/register', validateRequest(registerSchema), authController.register.bind(authController));
-router.post('/login', validateRequest(loginSchema), authController.login.bind(authController));
+// Rutas con rate limiting específico
+router.post('/register', authLimiter, validateRequest(registerSchema), authController.register.bind(authController));
+router.post('/login', authLimiter, validateRequest(loginSchema), authController.login.bind(authController));
 router.post('/refresh-token', validateRequest(refreshTokenSchema), authController.refreshToken.bind(authController));
 router.post('/logout', validateRequest(refreshTokenSchema), authController.logout.bind(authController));
-router.post('/forgot-password', validateRequest(requestPasswordResetSchema), authController.requestPasswordReset.bind(authController));
-router.post('/reset-password', validateRequest(resetPasswordSchema), authController.resetPassword.bind(authController));
+router.post('/forgot-password', passwordResetLimiter, validateRequest(requestPasswordResetSchema), authController.requestPasswordReset.bind(authController));
+router.post('/reset-password', passwordResetLimiter, validateRequest(resetPasswordSchema), authController.resetPassword.bind(authController));
 
 export default router;
 

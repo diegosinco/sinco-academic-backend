@@ -6,6 +6,7 @@ import compression from 'compression';
 import 'express-async-errors';
 import { config } from './config/env';
 import { errorHandler } from './middlewares/errorHandler';
+import { generalLimiter } from './middlewares/rateLimit';
 
 // Importar rutas
 import authRoutes from './routes/auth.routes';
@@ -80,6 +81,13 @@ export const createApp = (): Express => {
   }));
   app.use(compression());
   app.use(morgan(config.nodeEnv === 'production' ? 'combined' : 'dev'));
+  
+  // Rate limiting general (aplicado a todas las rutas)
+  // En desarrollo, puedes desactivarlo o aumentar el límite
+  if (config.nodeEnv === 'production') {
+    app.use('/api', generalLimiter);
+  }
+  
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

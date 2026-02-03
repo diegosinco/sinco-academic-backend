@@ -4,6 +4,7 @@ import { adminController } from '../controllers/admin.controller';
 import { authenticate } from '../middlewares/auth';
 import { requireAdmin } from '../middlewares/authorize';
 import { validateRequest } from '../middlewares/validateRequest';
+import { adminLimiter, createLimiter } from '../middlewares/rateLimit';
 
 const router = Router();
 
@@ -41,6 +42,7 @@ router.use(requireAdmin);
 // Gestión de usuarios (solo admin)
 router.post(
   '/users',
+  createLimiter,
   validateRequest(createUserSchema),
   adminController.createUser.bind(adminController)
 );

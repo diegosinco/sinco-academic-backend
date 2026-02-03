@@ -5,6 +5,7 @@ import { authenticate } from '../middlewares/auth';
 import { requireInstructor } from '../middlewares/authorize';
 import { requireAdmin } from '../middlewares/authorize';
 import { validateRequest } from '../middlewares/validateRequest';
+import { publicLimiter, createLimiter } from '../middlewares/rateLimit';
 
 const router = Router();
 
@@ -36,9 +37,9 @@ const updateCourseSchema = Joi.object({
 }).min(1);
 
 // Rutas públicas - Las rutas específicas deben ir antes de las dinámicas
-router.get('/', courseController.getCourses.bind(courseController));
-router.get('/categories', courseController.getCategories.bind(courseController));
-router.get('/id/:id', courseController.getCourseById.bind(courseController));
+router.get('/', publicLimiter, courseController.getCourses.bind(courseController));
+router.get('/categories', publicLimiter, courseController.getCategories.bind(courseController));
+router.get('/id/:id', publicLimiter, courseController.getCourseById.bind(courseController));
 
 // Rutas protegidas - Requieren autenticación
 // Estas deben ir ANTES de la ruta GET /:slug para evitar conflictos
@@ -46,6 +47,7 @@ router.post(
   '/',
   authenticate,
   requireInstructor,
+  createLimiter,
   validateRequest(createCourseSchema),
   courseController.createCourse.bind(courseController)
 );
@@ -67,7 +69,7 @@ router.delete(
 );
 
 // Ruta dinámica GET debe ir al final
-router.get('/:slug', courseController.getCourseBySlug.bind(courseController));
+router.get('/:slug', publicLimiter, courseController.getCourseBySlug.bind(courseController));
 
 export default router;
 
