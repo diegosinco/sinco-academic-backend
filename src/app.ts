@@ -15,6 +15,7 @@ import courseRoutes from './routes/course.routes';
 import blogRoutes from './routes/blog.routes';
 import ecommerceRoutes from './routes/ecommerce.routes';
 import adminRoutes from './routes/admin.routes';
+import uploadRoutes from './routes/upload.routes';
 
 export const createApp = (): Express => {
   const app = express();
@@ -98,9 +99,10 @@ export const createApp = (): Express => {
   app.use('/api/blog', blogRoutes);
   app.use('/api/ecommerce', ecommerceRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/api/upload', uploadRoutes);
 
   // Ruta de health check
-  app.get('/health', (req, res) => {
+  app.get('/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 

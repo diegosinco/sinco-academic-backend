@@ -27,5 +27,12 @@ export const config = {
           'https://sinco-academic-frontend.vercel.app',
         ],
   },
+  
+  azure: {
+    storageAccountName: process.env.AZURE_STORAGE_ACCOUNT_NAME || '',
+    storageAccountKey: process.env.AZURE_STORAGE_ACCOUNT_KEY || '',
+    connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING || '',
+    containerName: process.env.AZURE_STORAGE_CONTAINER_NAME || 'uploads',
+  },
 };
 
