@@ -38,8 +38,13 @@ export const createApp = (): Express => {
         return callback(null, true);
       }
       
-      // Permitir subdominios de vercel.app para preview deployments
+      // Permitir cualquier subdominio de vercel.app (producción y previews)
       if (origin.includes('.vercel.app')) {
+        return callback(null, true);
+      }
+      
+      // En desarrollo, permitir localhost con cualquier puerto
+      if (!config.isProduction && origin.includes('localhost')) {
         return callback(null, true);
       }
       
@@ -57,23 +62,7 @@ export const createApp = (): Express => {
   app.use(cors(corsOptions));
   
   // Manejar preflight requests explícitamente (crítico para Vercel)
-  app.options('*', (req, res) => {
-    const origin = req.headers.origin;
-    const allowedOrigins = config.frontend.allowedOrigins || [config.frontend.url];
-    
-    // Permitir si está en la lista o es un subdominio de vercel.app
-    if (origin) {
-      const isAllowed = allowedOrigins.includes(origin) || origin.includes('.vercel.app');
-      if (isAllowed) {
-        res.header('Access-Control-Allow-Origin', origin);
-      }
-    }
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400'); // 24 horas
-    res.sendStatus(204);
-  });
+  app.options('*', cors(corsOptions));
 
   // Middlewares de seguridad y configuración (después de CORS)
   app.use(helmet({
