@@ -5,63 +5,22 @@ dotenv.config();
 const nodeEnv = process.env.NODE_ENV || 'development';
 const isProduction = nodeEnv === 'production';
 
-/**
- * Valida que las variables de entorno críticas estén configuradas en producción
- * En entornos serverless (Vercel, AWS Lambda, etc.), no hacer process.exit()
- * ya que causa FUNCTION_INVOCATION_FAILED
- */
-function validateProductionEnv(): void {
-  // En producción, solo hacer warnings, nunca hacer exit
-  // Esto evita FUNCTION_INVOCATION_FAILED en Vercel y otros serverless
-  if (!isProduction) return;
+// La validación se hace al acceder a las variables (getRequiredEnv)
+// Esto evita process.exit() pero garantiza que las variables estén configuradas en producción
 
-  const requiredVars = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
-  const missing: string[] = [];
-
-  for (const varName of requiredVars) {
-    const value = process.env[varName];
-    if (!value || value.includes('default') || value.includes('change-in-production')) {
-      missing.push(varName);
-    }
+// Función helper para obtener variables requeridas
+function getRequiredEnv(key: string): string {
+  const value = process.env[key];
+  if (!value) {
+    throw new Error(`Variable de entorno requerida faltante: ${key}`);
   }
-
-  if (missing.length > 0) {
-    console.warn('⚠️  ADVERTENCIA: Variables de entorno faltantes o con valores por defecto:');
-    missing.forEach(varName => {
-      console.warn(`   - ${varName}`);
-    });
-    console.warn('⚠️  La aplicación puede fallar si estas variables no están configuradas correctamente.');
-    // NO hacer process.exit(1) - esto causa FUNCTION_INVOCATION_FAILED en serverless
-  }
-
-  const requiredVars = [
-    'DATABASE_URL',
-    'JWT_SECRET',
-    'JWT_REFRESH_SECRET',
-  ];
-
-  const missing: string[] = [];
-
-  for (const varName of requiredVars) {
-    if (!process.env[varName] || process.env[varName]?.includes('default') || process.env[varName]?.includes('change-in-production')) {
-      missing.push(varName);
-    }
-  }
-
-  if (missing.length > 0) {
-    console.error('❌ ERROR CRÍTICO: Variables de entorno faltantes o con valores por defecto en producción:');
-    missing.forEach(varName => {
-      console.error(`   - ${varName}`);
-    });
-    console.error('\n⚠️  La aplicación puede fallar si estas variables no están configuradas correctamente.');
-    // NO hacer process.exit(1) en producción porque puede causar problemas en serverless
-    // La aplicación fallará naturalmente cuando intente usar estas variables
-    // En servidores tradicionales, el administrador verá el error y lo corregirá
-  }
+  return value;
 }
 
-// Validar en producción
-validateProductionEnv();
+// Función helper para obtener variables opcionales
+function getOptionalEnv(key: string, defaultValue: string): string {
+  return process.env[key] || defaultValue;
+}
 
 export const config = {
   port: parseInt(process.env.PORT || '3000', 10),
@@ -69,14 +28,20 @@ export const config = {
   isProduction,
   
   database: {
-    url: process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/sinco_academic',
+    url: isProduction 
+      ? getRequiredEnv('DATABASE_URL')
+      : getOptionalEnv('DATABASE_URL', 'postgresql://user:password@localhost:5432/sinco_academic'),
   },
   
   jwt: {
-    secret: process.env.JWT_SECRET || 'default-secret-change-in-production',
-    refreshSecret: process.env.JWT_REFRESH_SECRET || 'default-refresh-secret-change-in-production',
-    expiresIn: process.env.JWT_EXPIRE || '15m',
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRE || '7d',
+    secret: isProduction
+      ? getRequiredEnv('JWT_SECRET')
+      : getOptionalEnv('JWT_SECRET', 'dev-secret-only-for-local-development'),
+    refreshSecret: isProduction
+      ? getRequiredEnv('JWT_REFRESH_SECRET')
+      : getOptionalEnv('JWT_REFRESH_SECRET', 'dev-refresh-secret-only-for-local-development'),
+    expiresIn: getOptionalEnv('JWT_EXPIRE', '15m'),
+    refreshExpiresIn: getOptionalEnv('JWT_REFRESH_EXPIRE', '7d'),
   },
   
   frontend: {
