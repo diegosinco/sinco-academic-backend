@@ -337,7 +337,7 @@ export class BlogService {
   /**
    * Eliminar un post de blog
    */
-  async deletePost(postId: string, userId: string, userRole: string) {
+  async deletePost(postId: string, _userId: string, userRole: string) {
     // Verificar que el post existe
     const post = await prisma.blogPost.findUnique({
       where: { id: postId },

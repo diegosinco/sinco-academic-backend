@@ -233,7 +233,7 @@ export class CourseService {
     return updatedCourse;
   }
 
-  async deleteCourse(courseId: string, userId: string, userRole: string) {
+  async deleteCourse(courseId: string, _userId: string, userRole: string) {
     // Buscar el curso
     const course = await prisma.course.findUnique({
       where: { id: courseId },
