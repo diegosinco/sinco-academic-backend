@@ -19,11 +19,12 @@ export const generalLimiter = rateLimit({
 /**
  * Rate limiter estricto para endpoints de autenticación
  * Previene ataques de fuerza bruta
- * 5 requests por 15 minutos por IP
+ * En desarrollo: 50 intentos por 15 minutos (más permisivo)
+ * En producción: 5 intentos por 15 minutos
  */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máximo 5 intentos de login/register por IP
+  max: process.env.NODE_ENV === 'production' ? 5 : 50, // Más permisivo en desarrollo
   message: {
     success: false,
     message: 'Demasiados intentos de autenticación. Por favor intenta más tarde.',

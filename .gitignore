@@ -86,3 +86,10 @@ postman_collection.json
 
 PROMPT_OAUTH_BACKEND.md
 
+GUIA_SWAGGER.md
+
+prisma/migrations/20260206114401_remove_blog_post_is_active/
+prisma/migrations/20260206160509_add_user_is_active/
+prisma/migrations/20260206163840_add_blog_post_is_active/
+prisma/migrations/20260206164000_remove_blog_post_is_active/
+

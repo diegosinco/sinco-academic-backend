@@ -64,6 +64,7 @@ export class AdminService {
         avatar: true,
         phone: true,
         isEmailVerified: true,
+        isActive: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -97,6 +98,7 @@ export class AdminService {
           avatar: true,
           phone: true,
           isEmailVerified: true,
+          isActive: true,
           createdAt: true,
           updatedAt: true,
         },
@@ -153,6 +155,31 @@ export class AdminService {
         avatar: true,
         phone: true,
         isEmailVerified: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return user;
+  }
+
+  /**
+   * Actualizar el estado activo/inactivo de un usuario
+   */
+  async updateUserStatus(userId: string, isActive: boolean) {
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { isActive },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        avatar: true,
+        phone: true,
+        isEmailVerified: true,
+        isActive: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -176,6 +203,7 @@ export class AdminService {
         avatar: true,
         phone: true,
         isEmailVerified: true,
+        isActive: true,
         createdAt: true,
         updatedAt: true,
       },

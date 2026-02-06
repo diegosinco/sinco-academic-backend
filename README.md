@@ -204,6 +204,34 @@ npm run prisma:generate
 - Manejo centralizado de errores
 - CORS configurado
 
+## 📚 Documentación de API (Swagger)
+
+La documentación interactiva de la API está disponible en `/api-docs`, pero **solo es accesible para administradores**.
+
+### Cómo acceder:
+
+1. **Obtén un token de administrador:**
+   ```bash
+   POST /api/auth/login
+   {
+     "email": "admin@sinco.co",
+     "password": "tu-password"
+   }
+   ```
+
+2. **Accede a Swagger con el token:**
+   - Abre tu navegador en: `http://localhost:3001/api-docs`
+   - En la interfaz de Swagger, haz clic en el botón **"Authorize"** (🔒)
+   - Ingresa: `Bearer <tu-access-token>`
+   - Haz clic en **"Authorize"** y luego en **"Close"**
+
+3. **Ahora puedes explorar y probar todos los endpoints**
+
+### Nota de Seguridad:
+- Solo usuarios con rol `admin` pueden acceder a la documentación
+- Si intentas acceder sin autenticación o con un rol diferente, verás un mensaje de error
+- El token debe estar activo (no expirado)
+
 ## 📝 Notas
 
 - Las contraseñas se hashean usando bcrypt antes de guardar

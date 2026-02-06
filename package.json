@@ -17,7 +17,9 @@
     "prisma:db:seed": "prisma db seed",
     "db:setup": "prisma generate && prisma migrate dev --name init",
     "db:reset": "prisma migrate reset",
-    "db:test": "tsx scripts/test-db-connection.ts"
+    "db:test": "tsx scripts/test-db-connection.ts",
+    "swagger:token": "tsx scripts/get-admin-token.ts",
+    "admin:list": "tsx scripts/list-admin-users.ts"
   },
   "keywords": [
     "academic",
@@ -56,11 +58,15 @@
     "@types/jsonwebtoken": "^9.0.5",
     "@types/morgan": "^1.9.9",
     "@types/node": "^20.19.30",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "@typescript-eslint/eslint-plugin": "^8.53.1",
     "@typescript-eslint/parser": "^8.53.1",
     "@vercel/node": "^5.5.23",
     "eslint": "^9.39.2",
     "prisma": "^5.22.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }

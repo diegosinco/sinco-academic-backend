@@ -5,6 +5,20 @@ import { AuthRequest } from '../middlewares/auth';
 
 export class AdminController {
   /**
+   * @swagger
+   * /api/admin/verify:
+   *   get:
+   *     summary: Verificar si el usuario es administrador
+   *     tags: [Administración]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Verificación exitosa
+   *       401:
+   *         description: No autenticado
+   */
+  /**
    * Endpoint para verificar si el usuario actual es admin
    * Útil para el frontend para mostrar/ocultar el panel de administración
    */
@@ -152,6 +166,74 @@ export class AdminController {
   }
 
   /**
+   * @swagger
+   * /api/admin/users/{id}/status:
+   *   patch:
+   *     summary: Habilitar o deshabilitar un usuario
+   *     tags: [Administración]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: ID del usuario
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - isActive
+   *             properties:
+   *               isActive:
+   *                 type: boolean
+   *                 description: Estado del usuario (true = habilitado, false = deshabilitado)
+   *     responses:
+   *       200:
+   *         description: Estado del usuario actualizado exitosamente
+   *       400:
+   *         description: Error de validación
+   *       401:
+   *         description: No autenticado
+   *       403:
+   *         description: No autorizado (solo admin)
+   *       404:
+   *         description: Usuario no encontrado
+   */
+  /**
+   * Actualizar el estado activo/inactivo de un usuario (solo admin)
+   */
+  async updateUserStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { isActive } = req.body;
+
+      if (typeof isActive !== 'boolean') {
+        throw new ValidationError('El campo isActive debe ser un booleano');
+      }
+
+      // No permitir que un admin se deshabilite a sí mismo
+      if (req.user && req.user.id === id && !isActive) {
+        throw new ValidationError('No puedes deshabilitarte a ti mismo');
+      }
+
+      const user = await adminService.updateUserStatus(id, isActive);
+
+      res.status(200).json({
+        success: true,
+        data: user,
+        message: `Usuario ${isActive ? 'habilitado' : 'deshabilitado'} exitosamente`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Eliminar un usuario (solo admin)
    */
   async deleteUser(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
@@ -177,7 +259,7 @@ export class AdminController {
   /**
    * Obtener estadísticas generales (solo admin)
    */
-  async getStats(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getStats(_req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const stats = await adminService.getStats();
 

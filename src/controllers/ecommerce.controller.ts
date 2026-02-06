@@ -3,6 +3,20 @@ import { AuthRequest } from '../middlewares/auth';
 import { ecommerceService } from '../services/ecommerce.service';
 
 export class EcommerceController {
+  /**
+   * @swagger
+   * /api/ecommerce/cart:
+   *   get:
+   *     summary: Obtener carrito de compras
+   *     tags: [E-commerce]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Carrito del usuario
+   *       401:
+   *         description: No autenticado
+   */
   async getCart(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.user) {

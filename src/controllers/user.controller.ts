@@ -3,6 +3,20 @@ import { AuthRequest } from '../middlewares/auth';
 import { userService } from '../services/user.service';
 
 export class UserController {
+  /**
+   * @swagger
+   * /api/users/profile:
+   *   get:
+   *     summary: Obtener perfil del usuario autenticado
+   *     tags: [Usuarios]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Perfil del usuario
+   *       401:
+   *         description: No autenticado
+   */
   async getProfile(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       if (!req.user) {

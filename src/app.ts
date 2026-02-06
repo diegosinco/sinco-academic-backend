@@ -7,6 +7,7 @@ import 'express-async-errors';
 import { config } from './config/env';
 import { errorHandler } from './middlewares/errorHandler';
 import { generalLimiter } from './middlewares/rateLimit';
+import { prisma } from './config/database';
 
 // Importar rutas
 import authRoutes from './routes/auth.routes';
@@ -89,8 +90,23 @@ export const createApp = (): Express => {
     app.use('/api', generalLimiter);
   }
   
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
+  // Configuración de body parser con límites de seguridad
+  app.use(express.json({ limit: '10mb' })); // Límite de 10MB para JSON
+  app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Límite de 10MB para URL encoded
+  
+  // Timeout para requests (30 segundos en producción, 60 en desarrollo)
+  app.use((req, res, next) => {
+    const timeout = config.nodeEnv === 'production' ? 30000 : 60000; // 30s prod, 60s dev
+    req.setTimeout(timeout, () => {
+      if (!res.headersSent) {
+        res.status(408).json({
+          success: false,
+          message: 'Request timeout',
+        });
+      }
+    });
+    next();
+  });
 
   // Rutas de la API
   app.use('/api/auth', authRoutes);
@@ -101,10 +117,55 @@ export const createApp = (): Express => {
   app.use('/api/admin', adminRoutes);
   app.use('/api/upload', uploadRoutes);
 
-  // Ruta de health check
-  app.get('/health', (_req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  // Health check mejorado - verifica conexión a DB
+  app.get('/health', async (_req, res) => {
+    try {
+      // Verificar conexión a la base de datos
+      await prisma.$queryRaw`SELECT 1`;
+      
+      res.status(200).json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        environment: config.nodeEnv,
+        database: 'connected',
+      });
+    } catch (error) {
+      res.status(503).json({
+        status: 'error',
+        timestamp: new Date().toISOString(),
+        environment: config.nodeEnv,
+        database: 'disconnected',
+        message: 'Database connection failed',
+      });
+    }
   });
+
+  // Swagger UI - Solo disponible en desarrollo
+  // En producción, esta ruta no existe por seguridad
+  // Importación condicional para no cargar en producción (optimización)
+  if (config.nodeEnv !== 'production') {
+    // Dynamic import solo en desarrollo - no se carga en producción
+    const swaggerUi = require('swagger-ui-express');
+    const { swaggerSpec } = require('./config/swagger');
+    
+    app.use('/api-docs', swaggerUi.serve);
+    app.get(
+      '/api-docs',
+      swaggerUi.setup(swaggerSpec, {
+        customCss: '.swagger-ui .topbar { display: none }',
+        customSiteTitle: 'Sinco Academic API - Documentación',
+        customfavIcon: '/favicon.ico',
+      })
+    );
+  } else {
+    // En producción, retornar 404 explícitamente
+    app.get('/api-docs', (_req, res) => {
+      res.status(404).json({
+        success: false,
+        message: 'Not Found',
+      });
+    });
+  }
 
   // Manejo de errores (debe ir al final)
   app.use(errorHandler);

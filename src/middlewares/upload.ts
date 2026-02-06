@@ -62,3 +62,19 @@ export const uploadAvatar = multer({
     fileSize: 5 * 1024 * 1024, // 5MB máximo para avatares
   },
 });
+
+// Middleware específico para imágenes de blog (solo imágenes, tamaño mayor)
+export const uploadBlogImage = multer({
+  storage,
+  fileFilter: (_req, file, cb) => {
+    const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (imageTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new ValidationError('Solo se permiten archivos de imagen para el blog') as any);
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB máximo para imágenes de blog
+  },
+});

@@ -15,10 +15,11 @@ export class AuthService {
     email: string,
     role: string,
     name: string,
-    avatar: string | null
+    avatar: string | null,
+    createdAt: Date
   ): string {
     return jwt.sign(
-      { id: userId, email, role, name, avatar },
+      { id: userId, email, role, name, avatar, createdAt: createdAt.toISOString() },
       config.jwt.secret,
       { expiresIn: config.jwt.expiresIn }
     );
@@ -59,7 +60,8 @@ export class AuthService {
       user.email,
       user.role,
       user.name,
-      user.avatar
+      user.avatar,
+      user.createdAt
     );
     const refreshToken = this.generateRefreshToken(user.id);
 
@@ -98,7 +100,8 @@ export class AuthService {
       user.email,
       user.role,
       user.name,
-      user.avatar
+      user.avatar,
+      user.createdAt
     );
     const refreshToken = this.generateRefreshToken(user.id);
 
@@ -153,7 +156,8 @@ export class AuthService {
         user.email,
         user.role,
         user.name,
-        user.avatar
+        user.avatar,
+        user.createdAt
       );
 
       return { accessToken };

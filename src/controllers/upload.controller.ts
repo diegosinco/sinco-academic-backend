@@ -7,13 +7,43 @@ import { config } from '../config/env';
 
 export class UploadController {
   /**
+   * @swagger
+   * /api/upload/generate-sas:
+   *   post:
+   *     summary: Generar URL pre-firmada para subir archivo
+   *     tags: [Upload]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - fileName
+   *               - contentType
+   *             properties:
+   *               fileName:
+   *                 type: string
+   *               contentType:
+   *                 type: string
+   *               expiresInMinutos:
+   *                 type: integer
+   *               folder:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: URL pre-firmada generada
+   */
+  /**
    * Genera una URL pre-firmada para subir un archivo a Azure Blob Storage
    * POST /api/upload/generate-sas
-   * Body: { fileName: string, contentType: string, expiresInMinutos?: number }
+   * Body: { fileName: string, contentType: string, expiresInMinutos?: number, folder?: string }
    */
   async generateUploadSAS(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { fileName, contentType, expiresInMinutos } = req.body;
+      const { fileName, contentType, expiresInMinutos, folder } = req.body;
 
       if (!fileName) {
         throw new ValidationError('El nombre del archivo es requerido');
@@ -28,7 +58,81 @@ export class UploadController {
         ? Math.min(Math.max(1, expiresInMinutos), 60) // Entre 1 y 60 minutos
         : 5; // Default: 5 minutos
 
-      const result = await uploadService.generateUploadSAS(fileName, contentType, expiresIn);
+      const result = await uploadService.generateUploadSAS(fileName, contentType, expiresIn, folder);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          uploadUrl: result.uploadUrl,
+          blobName: result.blobName,
+          publicUrl: uploadService.getPublicUrl(result.blobName),
+          expiresAt: result.expiresAt,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Genera URL pre-firmada para imagen de blog
+   * POST /api/upload/generate-sas/blog
+   */
+  async generateBlogImageSAS(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { fileName, contentType, expiresInMinutos } = req.body;
+
+      if (!fileName) {
+        throw new ValidationError('El nombre del archivo es requerido');
+      }
+
+      if (!contentType) {
+        throw new ValidationError('El tipo de contenido (contentType) es requerido');
+      }
+
+      const expiresIn = expiresInMinutos 
+        ? Math.min(Math.max(1, expiresInMinutos), 60)
+        : 5;
+
+      // Automáticamente usar carpeta "blog"
+      const result = await uploadService.generateUploadSAS(fileName, contentType, expiresIn, 'blog');
+
+      res.status(200).json({
+        success: true,
+        data: {
+          uploadUrl: result.uploadUrl,
+          blobName: result.blobName,
+          publicUrl: uploadService.getPublicUrl(result.blobName),
+          expiresAt: result.expiresAt,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Genera URL pre-firmada para imagen de curso
+   * POST /api/upload/generate-sas/course
+   */
+  async generateCourseImageSAS(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { fileName, contentType, expiresInMinutos } = req.body;
+
+      if (!fileName) {
+        throw new ValidationError('El nombre del archivo es requerido');
+      }
+
+      if (!contentType) {
+        throw new ValidationError('El tipo de contenido (contentType) es requerido');
+      }
+
+      const expiresIn = expiresInMinutos 
+        ? Math.min(Math.max(1, expiresInMinutos), 60)
+        : 5;
+
+      // Automáticamente usar carpeta "courses"
+      const result = await uploadService.generateUploadSAS(fileName, contentType, expiresIn, 'courses');
 
       res.status(200).json({
         success: true,
@@ -112,6 +216,42 @@ export class UploadController {
           url: result.publicUrl,
           blobName: result.blobName,
           user: updatedUser,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Sube una imagen de blog a través del backend
+   * POST /api/upload/blog-image
+   * FormData: { file: File }
+   */
+  async uploadBlogImage(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) {
+        throw new ValidationError('No se proporcionó ningún archivo');
+      }
+
+      // Validar que sea una imagen
+      if (!req.file.mimetype.startsWith('image/')) {
+        throw new ValidationError('El archivo debe ser una imagen');
+      }
+
+      // Subir archivo a Azure en carpeta "blog"
+      const result = await uploadService.uploadFile(
+        req.file.buffer,
+        req.file.originalname,
+        req.file.mimetype,
+        'blog' // Guardar en carpeta blog
+      );
+
+      res.status(200).json({
+        success: true,
+        data: {
+          url: result.publicUrl,
+          blobName: result.blobName,
         },
       });
     } catch (error) {

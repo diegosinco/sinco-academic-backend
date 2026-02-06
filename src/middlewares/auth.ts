@@ -10,6 +10,7 @@ export interface AuthRequest extends Request {
     role?: string;
     name?: string;
     avatar?: string | null;
+    createdAt?: string;
   };
 }
 
@@ -33,6 +34,7 @@ export const authenticate = (
       role?: string;
       name?: string;
       avatar?: string | null;
+      createdAt?: string;
     };
 
     req.user = {
@@ -41,6 +43,7 @@ export const authenticate = (
       role: decoded.role,
       name: decoded.name,
       avatar: decoded.avatar,
+      createdAt: decoded.createdAt,
     };
 
     next();
@@ -50,6 +53,51 @@ export const authenticate = (
       return;
     }
     next(error);
+  }
+};
+
+/**
+ * Middleware de autenticación opcional
+ * Intenta autenticar al usuario pero no falla si no hay token
+ * Útil para rutas que funcionan tanto para usuarios autenticados como no autenticados
+ */
+export const optionalAuthenticate = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+
+      try {
+        const decoded = jwt.verify(token, config.jwt.secret) as {
+          id: string;
+          email: string;
+          role?: string;
+          name?: string;
+          avatar?: string | null;
+        };
+
+        req.user = {
+          id: decoded.id,
+          email: decoded.email,
+          role: decoded.role,
+          name: decoded.name,
+          avatar: decoded.avatar,
+        };
+      } catch (error) {
+        // Si el token es inválido, simplemente continuar sin usuario
+        // No lanzar error para permitir acceso público
+      }
+    }
+
+    next();
+  } catch (error) {
+    // En caso de cualquier error, continuar sin autenticación
+    next();
   }
 };
 

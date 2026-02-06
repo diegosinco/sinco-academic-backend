@@ -3,7 +3,7 @@ import { config } from '../config/env';
 import { ValidationError } from '../utils/errors';
 
 export class UploadService {
-  private blobServiceClient: BlobServiceClient;
+  private blobServiceClient!: BlobServiceClient;
   private containerName: string;
 
   constructor() {
@@ -38,12 +38,14 @@ export class UploadService {
    * @param fileName Nombre del archivo (puede incluir ruta, ej: "images/avatar.jpg")
    * @param contentType Tipo MIME del archivo (ej: "image/jpeg", "application/pdf")
    * @param expiresInMinutos Tiempo de expiración en minutos (default: 5 minutos)
+   * @param folder Carpeta donde guardar (opcional, ej: "blog", "users", "courses")
    * @returns URL pre-firmada y nombre del blob
    */
   async generateUploadSAS(
     fileName: string,
     contentType: string,
-    expiresInMinutos: number = 5
+    expiresInMinutos: number = 5,
+    folder?: string
   ): Promise<{ uploadUrl: string; blobName: string; expiresAt: Date }> {
     this.ensureInitialized();
     
@@ -55,7 +57,11 @@ export class UploadService {
     const randomString = Math.random().toString(36).substring(2, 15);
     const fileExtension = fileName.split('.').pop() || '';
     const baseName = fileName.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9]/g, '-');
-    const blobName = `${baseName}-${timestamp}-${randomString}.${fileExtension}`;
+    
+    // Construir blob name con folder si se proporciona
+    const blobName = folder 
+      ? `${folder}/${baseName}-${timestamp}-${randomString}.${fileExtension}`
+      : `${baseName}-${timestamp}-${randomString}.${fileExtension}`;
 
     // Obtener contenedor
     const containerClient = this.blobServiceClient.getContainerClient(this.containerName);

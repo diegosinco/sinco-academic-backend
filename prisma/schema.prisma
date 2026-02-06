@@ -43,6 +43,7 @@ model User {
   avatar              String?
   phone               String?
   isEmailVerified     Boolean   @default(false)
+  isActive            Boolean   @default(true)
   resetPasswordToken  String?
   resetPasswordExpires DateTime?
   createdAt           DateTime  @default(now())

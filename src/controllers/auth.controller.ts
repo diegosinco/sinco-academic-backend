@@ -3,6 +3,59 @@ import { authService } from '../services/auth.service';
 import { AppError } from '../utils/errors';
 
 export class AuthController {
+  /**
+   * @swagger
+   * /api/auth/register:
+   *   post:
+   *     summary: Registrar un nuevo usuario
+   *     tags: [Autenticación]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - name
+   *               - email
+   *               - password
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 example: "Juan Pérez"
+   *               email:
+   *                 type: string
+   *                 format: email
+   *                 example: "juan@example.com"
+   *               password:
+   *                 type: string
+   *                 format: password
+   *                 example: "password123"
+   *     responses:
+   *       201:
+   *         description: Usuario registrado exitosamente
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     accessToken:
+   *                       type: string
+   *                     refreshToken:
+   *                       type: string
+   *       400:
+   *         description: Error de validación
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const tokens = await authService.register(req.body);
@@ -15,6 +68,55 @@ export class AuthController {
     }
   }
 
+  /**
+   * @swagger
+   * /api/auth/login:
+   *   post:
+   *     summary: Iniciar sesión
+   *     tags: [Autenticación]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - email
+   *               - password
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *                 example: "admin@sinco.co"
+   *               password:
+   *                 type: string
+   *                 format: password
+   *                 example: "password123"
+   *     responses:
+   *       200:
+   *         description: Login exitoso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                   example: true
+   *                 data:
+   *                   type: object
+   *                   properties:
+   *                     accessToken:
+   *                       type: string
+   *                     refreshToken:
+   *                       type: string
+   *       401:
+   *         description: Credenciales inválidas
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const tokens = await authService.login(req.body);

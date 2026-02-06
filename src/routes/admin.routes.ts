@@ -30,6 +30,10 @@ const updateUserRoleSchema = Joi.object({
   role: Joi.string().valid('student', 'instructor', 'admin').required(),
 });
 
+const updateUserStatusSchema = Joi.object({
+  isActive: Joi.boolean().required(),
+});
+
 // Rutas públicas (solo requieren autenticación)
 // Verificar si el usuario es admin (útil para el frontend)
 // Cualquier usuario autenticado puede verificar su rol
@@ -57,6 +61,11 @@ router.put(
   '/users/:id/role',
   validateRequest(updateUserRoleSchema),
   adminController.updateUserRole.bind(adminController)
+);
+router.patch(
+  '/users/:id/status',
+  validateRequest(updateUserStatusSchema),
+  adminController.updateUserStatus.bind(adminController)
 );
 router.delete('/users/:id', adminController.deleteUser.bind(adminController));
 

@@ -29,11 +29,11 @@ export const connectDatabase = async (): Promise<void> => {
       process.exit(1);
     }
 
-    // Intentar conectar con timeout
+    // Intentar conectar con timeout (aumentado para Neon que puede tardar en "despertar")
     await Promise.race([
       prisma.$connect(),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout: No se pudo conectar a la base de datos en 10 segundos')), 10000)
+        setTimeout(() => reject(new Error('Timeout: No se pudo conectar a la base de datos en 30 segundos')), 30000)
       ),
     ]);
 

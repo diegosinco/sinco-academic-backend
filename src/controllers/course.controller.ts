@@ -4,6 +4,40 @@ import { AuthRequest } from '../middlewares/auth';
 import type { CreateCourseDTO, UpdateCourseDTO } from '../types';
 
 export class CourseController {
+  /**
+   * @swagger
+   * /api/courses:
+   *   get:
+   *     summary: Listar cursos
+   *     tags: [Cursos]
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *       - in: query
+   *         name: category
+   *         schema:
+   *           type: string
+   *       - in: query
+   *         name: level
+   *         schema:
+   *           type: string
+   *           enum: [beginner, intermediate, advanced]
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Lista de cursos
+   */
   async getCourses(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const filters = {
