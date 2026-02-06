@@ -23,7 +23,12 @@ let appInstance: ReturnType<typeof createApp> | null = null;
 
 function getApp() {
   if (!appInstance) {
-    appInstance = createApp();
+    try {
+      appInstance = createApp();
+    } catch (error) {
+      console.error('Error creating app:', error);
+      throw error;
+    }
   }
   return appInstance;
 }
@@ -39,11 +44,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     
     // Ejecutar la app como handler
     return app(req, res);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in serverless handler:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Internal server error' 
-    });
+    console.error('Error stack:', error?.stack);
+    console.error('Error message:', error?.message);
+    
+    // Si la respuesta ya fue enviada, no intentar enviar otra
+    if (!res.headersSent) {
+      res.status(500).json({ 
+        success: false, 
+        error: 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? error?.message : undefined
+      });
+    }
   }
 }

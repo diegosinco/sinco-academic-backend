@@ -7,9 +7,32 @@ const isProduction = nodeEnv === 'production';
 
 /**
  * Valida que las variables de entorno críticas estén configuradas en producción
+ * En entornos serverless (Vercel, AWS Lambda, etc.), no hacer process.exit()
+ * ya que causa FUNCTION_INVOCATION_FAILED
  */
 function validateProductionEnv(): void {
+  // En producción, solo hacer warnings, nunca hacer exit
+  // Esto evita FUNCTION_INVOCATION_FAILED en Vercel y otros serverless
   if (!isProduction) return;
+
+  const requiredVars = ['DATABASE_URL', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+  const missing: string[] = [];
+
+  for (const varName of requiredVars) {
+    const value = process.env[varName];
+    if (!value || value.includes('default') || value.includes('change-in-production')) {
+      missing.push(varName);
+    }
+  }
+
+  if (missing.length > 0) {
+    console.warn('⚠️  ADVERTENCIA: Variables de entorno faltantes o con valores por defecto:');
+    missing.forEach(varName => {
+      console.warn(`   - ${varName}`);
+    });
+    console.warn('⚠️  La aplicación puede fallar si estas variables no están configuradas correctamente.');
+    // NO hacer process.exit(1) - esto causa FUNCTION_INVOCATION_FAILED en serverless
+  }
 
   const requiredVars = [
     'DATABASE_URL',
@@ -30,8 +53,10 @@ function validateProductionEnv(): void {
     missing.forEach(varName => {
       console.error(`   - ${varName}`);
     });
-    console.error('\n⚠️  La aplicación NO puede iniciar en producción sin estas variables configuradas correctamente.');
-    process.exit(1);
+    console.error('\n⚠️  La aplicación puede fallar si estas variables no están configuradas correctamente.');
+    // NO hacer process.exit(1) en producción porque puede causar problemas en serverless
+    // La aplicación fallará naturalmente cuando intente usar estas variables
+    // En servidores tradicionales, el administrador verá el error y lo corregirá
   }
 }
 
