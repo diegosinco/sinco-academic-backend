@@ -60,9 +60,6 @@ export const createApp = (): Express => {
   
   // Aplicar CORS antes de cualquier otro middleware
   app.use(cors(corsOptions));
-  
-  // Manejar preflight requests explícitamente (crítico para Vercel)
-  app.options('*', cors(corsOptions));
 
   // Middlewares de seguridad y configuración (después de CORS)
   app.use(helmet({
