@@ -1,4 +1,5 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
+import type { StringValue } from 'ms';
 import { config } from '../config/env';
 import { prisma } from '../config/database';
 import { hashPassword, comparePassword } from '../utils/password';
@@ -18,18 +19,24 @@ export class AuthService {
     avatar: string | null,
     createdAt: Date
   ): string {
+    const options: SignOptions = {
+      expiresIn: config.jwt.expiresIn as StringValue,
+    };
     return jwt.sign(
       { id: userId, email, role, name, avatar, createdAt: createdAt.toISOString() },
       config.jwt.secret,
-      { expiresIn: config.jwt.expiresIn as string | number }
+      options
     );
   }
 
   private generateRefreshToken(userId: string): string {
+    const options: SignOptions = {
+      expiresIn: config.jwt.refreshExpiresIn as StringValue,
+    };
     return jwt.sign(
       { id: userId },
       config.jwt.refreshSecret,
-      { expiresIn: config.jwt.refreshExpiresIn as string | number }
+      options
     );
   }
 
