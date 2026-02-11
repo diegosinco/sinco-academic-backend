@@ -3,7 +3,7 @@ import { Schema } from 'joi';
 import { ValidationError } from '../utils/errors';
 
 export const validateRequest = (schema: Schema) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     const { error, value } = schema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true,

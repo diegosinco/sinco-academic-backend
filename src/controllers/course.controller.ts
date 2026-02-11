@@ -73,7 +73,7 @@ export class CourseController {
     }
   }
 
-  async getCategories(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getCategories(_req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const categories = await courseService.getCategories();
       res.status(200).json({

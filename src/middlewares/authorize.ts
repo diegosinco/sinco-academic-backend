@@ -9,7 +9,7 @@ type UserRole = 'student' | 'instructor' | 'admin';
  * @param allowedRoles - Array de roles permitidos
  */
 export const authorize = (...allowedRoles: UserRole[]) => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: AuthRequest, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       throw new ForbiddenError('Usuario no autenticado');
     }
@@ -41,7 +41,7 @@ export const requireInstructor = authorize('instructor', 'admin');
  * Útil para endpoints donde solo el dueño puede acceder (ej: actualizar su propio perfil)
  */
 export const requireOwnerOrAdmin = (getUserId: (req: AuthRequest) => string) => {
-  return (req: AuthRequest, res: Response, next: NextFunction): void => {
+  return (req: AuthRequest, _res: Response, next: NextFunction): void => {
     if (!req.user) {
       throw new ForbiddenError('Usuario no autenticado');
     }

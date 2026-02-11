@@ -2,7 +2,6 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middlewares/auth';
 import { lessonService } from '../services/lesson.service';
 import { vimeoService } from '../services/vimeo.service';
-import { prisma } from '../config/database';
 
 export class LessonController {
   /**
