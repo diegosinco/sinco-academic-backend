@@ -61,5 +61,11 @@ export const config = {
     connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING || '',
     containerName: process.env.AZURE_STORAGE_CONTAINER_NAME || 'uploads',
   },
+  
+  vimeo: {
+    accessToken: isProduction
+      ? getRequiredEnv('VIMEO_ACCESS_TOKEN')
+      : getOptionalEnv('VIMEO_ACCESS_TOKEN', ''),
+  },
 };
 

@@ -19,7 +19,8 @@
     "db:reset": "prisma migrate reset",
     "db:test": "tsx scripts/test-db-connection.ts",
     "swagger:token": "tsx scripts/get-admin-token.ts",
-    "admin:list": "tsx scripts/list-admin-users.ts"
+    "admin:list": "tsx scripts/list-admin-users.ts",
+    "test:course": "tsx scripts/create-test-course.ts"
   },
   "keywords": [
     "academic",
@@ -33,6 +34,7 @@
     "@azure/storage-blob": "^12.30.0",
     "@prisma/client": "^5.22.0",
     "@types/multer": "^2.0.0",
+    "@vimeo/vimeo": "^3.0.3",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "cors": "^2.8.5",

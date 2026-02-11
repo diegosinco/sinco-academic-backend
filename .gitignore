@@ -93,3 +93,11 @@ prisma/migrations/20260206160509_add_user_is_active/
 prisma/migrations/20260206163840_add_blog_post_is_active/
 prisma/migrations/20260206164000_remove_blog_post_is_active/
 
+CHECKLIST_FRONTEND.md
+scripts/create-blog-categories.ts
+scripts/create-lesson.ts
+scripts/create-sinco-schools.ts
+scripts/create-test-course.ts
+scripts/enroll-user.ts
+scripts/list-courses.ts
+scripts/publish-course.ts
