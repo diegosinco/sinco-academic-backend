@@ -21,7 +21,7 @@ export class AuthService {
     return jwt.sign(
       { id: userId, email, role, name, avatar, createdAt: createdAt.toISOString() },
       config.jwt.secret,
-      { expiresIn: config.jwt.expiresIn }
+      { expiresIn: config.jwt.expiresIn as string | number }
     );
   }
 
@@ -29,7 +29,7 @@ export class AuthService {
     return jwt.sign(
       { id: userId },
       config.jwt.refreshSecret,
-      { expiresIn: config.jwt.refreshExpiresIn }
+      { expiresIn: config.jwt.refreshExpiresIn as string | number }
     );
   }
 
