@@ -39,7 +39,7 @@ export class VimeoService {
             name: fileName,
           },
         },
-        (error, body) => {
+        (error: any, body: any) => {
           if (error) {
             reject(new ValidationError(`Error al crear video en Vimeo: ${error.message}`));
             return;
@@ -65,7 +65,7 @@ export class VimeoService {
             fields: 'uri,name,description,duration,status,embed.html,pictures.sizes,link',
           },
         },
-        (error, body) => {
+        (error: any, body: any) => {
           if (error) {
             if (error.statusCode === 404) {
               reject(new NotFoundError(`Video no encontrado en Vimeo: ${videoId}`));
@@ -100,7 +100,7 @@ export class VimeoService {
           path: `/videos/${videoId}`,
           body: data,
         },
-        (error, body) => {
+        (error: any, body: any) => {
           if (error) {
             if (error.statusCode === 404) {
               reject(new NotFoundError(`Video no encontrado en Vimeo: ${videoId}`));
@@ -126,7 +126,7 @@ export class VimeoService {
           method: 'DELETE',
           path: `/videos/${videoId}`,
         },
-        (error) => {
+        (error: any) => {
           if (error) {
             if (error.statusCode === 404) {
               reject(new NotFoundError(`Video no encontrado en Vimeo: ${videoId}`));
