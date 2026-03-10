@@ -9,6 +9,7 @@ export interface CourseCategory {
   slug: string;
   description: string | null;
   image: string | null;
+  color: string | null; // Hex, ej: #0066CC
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,6 +45,7 @@ export interface CourseFull {
     id: string;
     name: string;
     slug: string;
+    color?: string | null;
   };
 }
 
@@ -70,6 +72,7 @@ export interface CourseListItem {
     id: string;
     name: string;
     slug: string;
+    color?: string | null;
   };
 }
 
@@ -84,6 +87,8 @@ export interface CourseFilters {
   maxPrice?: number;
   page?: number;
   limit?: number;
+  /** Incluir no publicados (solo admin/instructor) */
+  includeUnpublished?: boolean;
 }
 
 /**

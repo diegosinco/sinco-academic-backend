@@ -95,6 +95,21 @@ export class AdminController {
   }
 
   /**
+   * Obtener lista de instructores (para dropdown en creación de curso, solo admin)
+   */
+  async getInstructors(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const instructors = await adminService.getInstructors();
+      res.status(200).json({
+        success: true,
+        data: instructors,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Obtener un usuario por ID (solo admin)
    */
   async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -130,6 +145,26 @@ export class AdminController {
         success: true,
         data: user,
         message: 'Usuario actualizado exitosamente',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Cambiar contraseña de un usuario (solo admin)
+   */
+  async updateUserPassword(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { newPassword } = req.body;
+
+      const result = await adminService.updateUserPassword(id, newPassword);
+
+      res.status(200).json({
+        success: true,
+        data: result,
+        message: 'Contraseña actualizada exitosamente',
       });
     } catch (error) {
       next(error);

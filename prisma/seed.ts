@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { CourseLevel, PrismaClient } from '@prisma/client';
 import { hashPassword } from '../src/utils/password';
 
 const prisma = new PrismaClient();
@@ -63,67 +63,25 @@ async function main() {
 
   console.log('✅ Usuario admin creado:', admin.email);
 
-  // Crear categorías de cursos
-  console.log('📚 Creando categorías de cursos...');
-  
-  const categoriaWeb = await prisma.courseCategory.upsert({
-    where: { slug: 'desarrollo-web' },
-    update: {},
-    create: {
-      name: 'Desarrollo Web',
-      slug: 'desarrollo-web',
-      description: 'Aprende a crear aplicaciones web modernas',
-      image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800',
-    },
+  // Categorías: ejecutar antes "npm run seed:categories" para tener módulos SINCO ERP
+  const categoriaDefault = await prisma.courseCategory.findFirst({
+    where: { slug: 'adpro' },
   });
 
-  const categoriaMobile = await prisma.courseCategory.upsert({
-    where: { slug: 'desarrollo-mobile' },
-    update: {},
-    create: {
-      name: 'Desarrollo Mobile',
-      slug: 'desarrollo-mobile',
-      description: 'Desarrolla aplicaciones móviles nativas e híbridas',
-      image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800',
-    },
-  });
-
-  const categoriaData = await prisma.courseCategory.upsert({
-    where: { slug: 'data-science' },
-    update: {},
-    create: {
-      name: 'Data Science',
-      slug: 'data-science',
-      description: 'Análisis de datos y machine learning',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
-    },
-  });
-
-  const categoriaDesign = await prisma.courseCategory.upsert({
-    where: { slug: 'diseño' },
-    update: {},
-    create: {
-      name: 'Diseño',
-      slug: 'diseño',
-      description: 'Diseño UI/UX y herramientas de diseño',
-      image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800',
-    },
-  });
-
-  // Crear cursos
-  console.log('📖 Creando cursos...');
-
-  const cursos = [
+  // Crear cursos (requiere categorías - ejecutar "npm run seed:categories" primero)
+  if (categoriaDefault) {
+    console.log('📖 Creando cursos...');
+    const cursos = [
     {
       title: 'JavaScript Moderno desde Cero',
       slug: 'javascript-moderno-desde-cero',
       description: 'Aprende JavaScript desde los fundamentos hasta las características más modernas de ES6+. Incluye async/await, destructuring, módulos y mucho más.',
       shortDescription: 'Domina JavaScript desde cero hasta nivel avanzado',
       instructorId: instructor1.id,
-      categoryId: categoriaWeb.id,
+      categoryId: categoriaDefault.id,
       price: 49.99,
       image: 'https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=800',
-      level: 'beginner',
+      level: 'beginner' as CourseLevel,
       duration: 12,
       rating: 4.8,
       reviewsCount: 125,
@@ -136,10 +94,10 @@ async function main() {
       description: 'Curso avanzado de React utilizando TypeScript. Aprende hooks avanzados, context API, state management, y mejores prácticas.',
       shortDescription: 'Lleva tus habilidades de React al siguiente nivel',
       instructorId: instructor1.id,
-      categoryId: categoriaWeb.id,
+      categoryId: categoriaDefault.id,
       price: 79.99,
       image: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800',
-      level: 'advanced',
+      level: 'advanced' as CourseLevel,
       duration: 20,
       rating: 4.9,
       reviewsCount: 89,
@@ -152,10 +110,10 @@ async function main() {
       description: 'Masterclass completo de Next.js 14. Aprende Server Components, App Router, API Routes, y despliegue en producción.',
       shortDescription: 'Crea aplicaciones full stack con Next.js 14',
       instructorId: instructor1.id,
-      categoryId: categoriaWeb.id,
+      categoryId: categoriaDefault.id,
       price: 89.99,
       image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
-      level: 'intermediate',
+      level: 'intermediate' as CourseLevel,
       duration: 15,
       rating: 4.7,
       reviewsCount: 203,
@@ -168,10 +126,10 @@ async function main() {
       description: 'Desarrolla aplicaciones móviles nativas para iOS y Android usando React Native. Incluye navegación, APIs nativas, y publicación en stores.',
       shortDescription: 'Desarrolla apps móviles multiplataforma',
       instructorId: instructor2.id,
-      categoryId: categoriaMobile.id,
+      categoryId: categoriaDefault.id,
       price: 69.99,
       image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800',
-      level: 'intermediate',
+      level: 'intermediate' as CourseLevel,
       duration: 18,
       rating: 4.6,
       reviewsCount: 156,
@@ -184,10 +142,10 @@ async function main() {
       description: 'Aprende Python desde cero aplicado a Data Science. Incluye pandas, numpy, matplotlib, y machine learning básico.',
       shortDescription: 'Domina Python para análisis de datos',
       instructorId: instructor2.id,
-      categoryId: categoriaData.id,
+      categoryId: categoriaDefault.id,
       price: 59.99,
       image: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=800',
-      level: 'beginner',
+      level: 'beginner' as CourseLevel,
       duration: 14,
       rating: 4.5,
       reviewsCount: 178,
@@ -200,10 +158,10 @@ async function main() {
       description: 'Aprende diseño de interfaces y experiencia de usuario usando Figma. Desde wireframes hasta prototipos interactivos.',
       shortDescription: 'Crea diseños profesionales con Figma',
       instructorId: instructor1.id,
-      categoryId: categoriaDesign.id,
+      categoryId: categoriaDefault.id,
       price: 54.99,
       image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800',
-      level: 'beginner',
+      level: 'beginner' as CourseLevel,
       duration: 10,
       rating: 4.7,
       reviewsCount: 142,
@@ -216,10 +174,10 @@ async function main() {
       description: 'Desarrolla APIs RESTful profesionales con Node.js y Express. Incluye autenticación JWT, bases de datos, y deployment.',
       shortDescription: 'Convierte en experto en desarrollo backend',
       instructorId: instructor2.id,
-      categoryId: categoriaWeb.id,
+      categoryId: categoriaDefault.id,
       price: 74.99,
       image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800',
-      level: 'intermediate',
+      level: 'intermediate' as CourseLevel,
       duration: 16,
       rating: 4.8,
       reviewsCount: 234,
@@ -232,10 +190,10 @@ async function main() {
       description: 'Aprende Vue.js 3 con Composition API. Crea aplicaciones reactivas y escalables con el framework progresivo de JavaScript.',
       shortDescription: 'Master Vue.js 3 y Composition API',
       instructorId: instructor1.id,
-      categoryId: categoriaWeb.id,
+      categoryId: categoriaDefault.id,
       price: 64.99,
       image: 'https://images.unsplash.com/photo-1593720213428-28a5b9e94613?w=800',
-      level: 'beginner',
+      level: 'beginner' as CourseLevel,
       duration: 12,
       rating: 4.6,
       reviewsCount: 98,
@@ -251,6 +209,9 @@ async function main() {
       create: curso,
     });
     console.log(`  ✅ Curso creado: ${curso.title}`);
+  }
+  } else {
+    console.warn('⚠️  Saltando cursos: ejecuta "npm run seed:categories" primero.');
   }
 
   // Crear categorías de blog

@@ -259,10 +259,10 @@ export class LessonService {
         description: data.description,
         vimeoVideoId: data.vimeoVideoId,
         videoUrl: data.videoUrl,
-        duration: data.duration,
-        order: data.order ?? 0,
-        isPublished: data.isPublished ?? false,
-        isPreview: data.isPreview ?? false,
+        duration: data.duration != null ? Math.round(Number(data.duration)) : null,
+        order: Math.round(Number(data.order ?? 0)),
+        isPublished: Boolean(data.isPublished),
+        isPreview: Boolean(data.isPreview),
       },
     });
 
@@ -329,10 +329,10 @@ export class LessonService {
           description: lessonData.description,
           vimeoVideoId: lessonData.vimeoVideoId,
           videoUrl: lessonData.videoUrl,
-          duration: lessonData.duration,
-          order: lessonData.order ?? index,
-          isPublished: lessonData.isPublished ?? false,
-          isPreview: lessonData.isPreview ?? false,
+          duration: lessonData.duration != null ? Math.round(Number(lessonData.duration)) : null,
+          order: Math.round(Number(lessonData.order ?? index)),
+          isPublished: Boolean(lessonData.isPublished),
+          isPreview: Boolean(lessonData.isPreview),
         };
       })
     );
@@ -406,9 +406,19 @@ export class LessonService {
       }
     }
 
+    const sanitized: Record<string, unknown> = {};
+    if (data.title !== undefined) sanitized.title = data.title;
+    if (data.description !== undefined) sanitized.description = data.description;
+    if (data.vimeoVideoId !== undefined) sanitized.vimeoVideoId = data.vimeoVideoId;
+    if (data.videoUrl !== undefined) sanitized.videoUrl = data.videoUrl;
+    if (data.duration !== undefined) sanitized.duration = data.duration != null ? Math.round(Number(data.duration)) : null;
+    if (data.order !== undefined) sanitized.order = Math.round(Number(data.order));
+    if (data.isPublished !== undefined) sanitized.isPublished = Boolean(data.isPublished);
+    if (data.isPreview !== undefined) sanitized.isPreview = Boolean(data.isPreview);
+
     const updatedLesson = await prisma.lesson.update({
       where: { id: lessonId },
-      data,
+      data: sanitized,
     });
 
     return updatedLesson;

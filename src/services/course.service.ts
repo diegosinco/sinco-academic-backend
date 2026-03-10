@@ -12,11 +12,15 @@ export class CourseService {
       maxPrice,
       page = 1,
       limit = 10,
+      includeUnpublished = false,
     } = filters;
 
     const skip = (page - 1) * limit;
 
-    const where: any = { isPublished: true };
+    const where: any = {};
+    if (!includeUnpublished) {
+      where.isPublished = true;
+    }
 
     if (category) {
       const categoryDoc = await prisma.courseCategory.findUnique({
@@ -61,6 +65,7 @@ export class CourseService {
               id: true,
               name: true,
               slug: true,
+              color: true,
             },
           },
         },
@@ -97,6 +102,7 @@ export class CourseService {
             name: true,
             slug: true,
             description: true,
+            color: true,
           },
         },
       },
@@ -208,6 +214,11 @@ export class CourseService {
       updateData.publishedAt = null;
     }
 
+    // Solo admins pueden cambiar el instructor
+    if (userRole !== 'admin' && 'instructorId' in updateData) {
+      delete updateData.instructorId;
+    }
+
     const updatedCourse = await prisma.course.update({
       where: { id: courseId },
       data: updateData,
@@ -231,6 +242,41 @@ export class CourseService {
     });
 
     return updatedCourse;
+  }
+
+  /**
+   * Cambiar solo el estado isPublished del curso
+   */
+  async updatePublishStatus(courseId: string, userId: string, userRole: string, isPublished: boolean) {
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+    });
+
+    if (!course) {
+      throw new NotFoundError('Curso no encontrado');
+    }
+
+    if (course.instructorId !== userId && userRole !== 'admin') {
+      throw new ForbiddenError('No tienes permisos para modificar este curso');
+    }
+
+    const updateData: { isPublished: boolean; publishedAt: Date | null } = {
+      isPublished,
+      publishedAt: isPublished ? new Date() : null,
+    };
+
+    return prisma.course.update({
+      where: { id: courseId },
+      data: updateData,
+      include: {
+        instructor: {
+          select: { id: true, name: true, email: true, avatar: true },
+        },
+        category: {
+          select: { id: true, name: true, slug: true },
+        },
+      },
+    });
   }
 
   async deleteCourse(courseId: string, _userId: string, userRole: string) {

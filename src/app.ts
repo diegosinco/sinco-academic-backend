@@ -19,6 +19,7 @@ import adminRoutes from './routes/admin.routes';
 import uploadRoutes from './routes/upload.routes';
 import lessonRoutes from './routes/lesson.routes';
 import lessonProgressRoutes from './routes/lessonProgress.routes';
+import contentRoutes from './routes/content.routes';
 
 export const createApp = (): Express => {
   const app = express();
@@ -106,6 +107,7 @@ export const createApp = (): Express => {
   app.use('/api/upload', uploadRoutes);
   app.use('/api', lessonRoutes);
   app.use('/api', lessonProgressRoutes);
+  app.use('/api/content', contentRoutes);
 
   // Health check mejorado - verifica conexión a DB
   app.get('/health', async (_req, res) => {

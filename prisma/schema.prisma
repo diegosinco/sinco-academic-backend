@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -82,6 +83,7 @@ model CourseCategory {
   slug        String   @unique
   description String?
   image       String?
+  color       String?  // Hex, ej: #0066CC (para el front)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -89,6 +91,22 @@ model CourseCategory {
 
   @@index([slug])
   @@map("course_categories")
+}
+
+// Elementos reutilizables del gestor de contenidos: banners, carruseles, CTAs, etc.
+model ContentElement {
+  id        String   @id @default(cuid())
+  type      String   // ej: banner, carousel, cta, feature_grid
+  key       String   @unique // identificador en el front: home-hero-banner, home-carousel-promos
+  title     String?  // nombre en admin
+  data      Json     // contenido según type; ej. carousel: { slides: [{ image, link, title }], autoplay }
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type])
+  @@index([key])
+  @@map("content_elements")
 }
 
 model Course {
@@ -291,7 +309,7 @@ model Lesson {
   description  String?
   vimeoVideoId String? // ID del video en Vimeo
   videoUrl     String? // URL del video (puede ser Vimeo o externa)
-  duration     Int? // Duración en segundos
+  duration     Int? // Duración en minutos (enviada desde el front)
   order        Int      @default(0) // Orden de la lección en el curso
   isPublished  Boolean  @default(false)
   isPreview    Boolean  @default(false) // Si es true, visible sin estar inscrito (intro/preview)

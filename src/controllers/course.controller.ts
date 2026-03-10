@@ -38,8 +38,11 @@ export class CourseController {
    *       200:
    *         description: Lista de cursos
    */
-  async getCourses(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getCourses(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
+      const isAdminOrInstructor = req.user?.role === 'admin' || req.user?.role === 'instructor';
+      const includeUnpublished = req.query.includeUnpublished === 'true' && isAdminOrInstructor;
+
       const filters = {
         category: req.query.category as string,
         level: req.query.level as string,
@@ -48,6 +51,7 @@ export class CourseController {
         maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
         page: req.query.page ? Number(req.query.page) : 1,
         limit: req.query.limit ? Number(req.query.limit) : 10,
+        includeUnpublished,
       };
 
       const result = await courseService.getCourses(filters);
@@ -129,6 +133,32 @@ export class CourseController {
         success: true,
         data: course,
         message: 'Curso actualizado exitosamente',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updatePublishStatus(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.user?.id || !req.user?.role) {
+        res.status(401).json({ success: false, error: 'Usuario no autenticado' });
+        return;
+      }
+
+      const { id } = req.params;
+      const { isPublished } = req.body;
+
+      if (typeof isPublished !== 'boolean') {
+        res.status(400).json({ success: false, error: 'isPublished debe ser true o false' });
+        return;
+      }
+
+      const course = await courseService.updatePublishStatus(id, req.user.id, req.user.role, isPublished);
+      res.status(200).json({
+        success: true,
+        data: course,
+        message: isPublished ? 'Curso publicado' : 'Curso despublicado',
       });
     } catch (error) {
       next(error);

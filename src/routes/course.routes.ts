@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import Joi from 'joi';
 import { courseController } from '../controllers/course.controller';
-import { authenticate } from '../middlewares/auth';
+import { authenticate, optionalAuthenticate } from '../middlewares/auth';
 import { requireInstructor } from '../middlewares/authorize';
 import { requireAdmin } from '../middlewares/authorize';
 import { validateRequest } from '../middlewares/validateRequest';
@@ -23,6 +23,10 @@ const createCourseSchema = Joi.object({
   instructorId: Joi.string().optional(), // Solo para admins
 });
 
+const publishStatusSchema = Joi.object({
+  isPublished: Joi.boolean().required(),
+});
+
 const updateCourseSchema = Joi.object({
   title: Joi.string().min(3).max(200).optional(),
   slug: Joi.string().pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).message('El slug debe contener solo letras minúsculas, números y guiones').optional(),
@@ -34,10 +38,12 @@ const updateCourseSchema = Joi.object({
   level: Joi.string().valid('beginner', 'intermediate', 'advanced').optional(),
   duration: Joi.number().min(0).optional().allow(null),
   isPublished: Joi.boolean().optional(),
+  instructorId: Joi.string().optional(), // Solo admins pueden cambiarlo
 }).min(1);
 
 // Rutas públicas - Las rutas específicas deben ir antes de las dinámicas
-router.get('/', publicLimiter, courseController.getCourses.bind(courseController));
+// optionalAuthenticate: si hay token de admin/instructor, pueden usar ?includeUnpublished=true
+router.get('/', publicLimiter, optionalAuthenticate, courseController.getCourses.bind(courseController));
 router.get('/categories', publicLimiter, courseController.getCategories.bind(courseController));
 router.get('/id/:id', publicLimiter, courseController.getCourseById.bind(courseController));
 
@@ -59,6 +65,15 @@ router.put(
   requireInstructor,
   validateRequest(updateCourseSchema),
   courseController.updateCourse.bind(courseController)
+);
+
+// Cambiar estado de publicación (solo instructor dueño o admin)
+router.patch(
+  '/:id/publish',
+  authenticate,
+  requireInstructor,
+  validateRequest(publishStatusSchema),
+  courseController.updatePublishStatus.bind(courseController)
 );
 
 router.delete(

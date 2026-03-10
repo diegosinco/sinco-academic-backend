@@ -118,6 +118,18 @@ export class AdminService {
   }
 
   /**
+   * Obtener lista de instructores (para dropdown en creación de curso)
+   * Solo id, name, email - uso ligero
+   */
+  async getInstructors() {
+    return prisma.user.findMany({
+      where: { role: 'instructor', isActive: true },
+      select: { id: true, name: true, email: true },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  /**
    * Obtener un usuario por ID (completo, solo para admin)
    */
   async getUserById(userId: string) {
@@ -186,6 +198,28 @@ export class AdminService {
     });
 
     return user;
+  }
+
+  /**
+   * Cambiar contraseña de un usuario (solo admin, sin requerir contraseña actual)
+   */
+  async updateUserPassword(userId: string, newPassword: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundError('Usuario no encontrado');
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    return { message: 'Contraseña actualizada exitosamente' };
   }
 
   /**

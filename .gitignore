@@ -54,6 +54,9 @@ coverage/
 .nyc_output/
 *.lcov
 
+# Backups de base de datos (contienen datos sensibles)
+backups/
+
 # Temporary files
 *.tmp
 *.temp
@@ -82,18 +85,10 @@ TROUBLESHOOTING_DB.md
 TYPES_MODELS.md
 USER_MODEL.md
 postman_collection.json
-# Nota: README.md SÍ debe subirse (es la documentación principal del proyecto)
-
-PROMPT_OAUTH_BACKEND.md
-
-GUIA_SWAGGER.md
-
-prisma/migrations/20260206114401_remove_blog_post_is_active/
+# Nota: README.md SÍ debe subirse (es la documentación principal del proyecto)PROMPT_OAUTH_BACKEND.mdGUIA_SWAGGER.mdprisma/migrations/20260206114401_remove_blog_post_is_active/
 prisma/migrations/20260206160509_add_user_is_active/
 prisma/migrations/20260206163840_add_blog_post_is_active/
-prisma/migrations/20260206164000_remove_blog_post_is_active/
-
-CHECKLIST_FRONTEND.md
+prisma/migrations/20260206164000_remove_blog_post_is_active/CHECKLIST_FRONTEND.md
 scripts/create-blog-categories.ts
 scripts/create-lesson.ts
 scripts/create-sinco-schools.ts
@@ -101,3 +96,7 @@ scripts/create-test-course.ts
 scripts/enroll-user.ts
 scripts/list-courses.ts
 scripts/publish-course.ts
+BACKUP_Y_DATOS_LEGACY.md
+CHECKLIST_FRONTEND.mdPROMPT_OAUTH_BACKEND.md
+scripts/backup-db.ts
+prisma/migrations/20260206164000_remove_blog_post_is_active/
