@@ -41,22 +41,20 @@ export class AuthService {
   }
 
   async register(data: RegisterDTO): Promise<AuthTokens> {
-    // Verificar si el usuario ya existe
-    const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+    const emailNormalized = String(data.email).trim().toLowerCase();
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: emailNormalized, mode: 'insensitive' } },
     });
     if (existingUser) {
       throw new ConflictError('El email ya está registrado');
     }
 
-    // Hash de contraseña
     const hashedPassword = await hashPassword(data.password);
 
-    // Crear nuevo usuario
     const user = await prisma.user.create({
       data: {
         name: data.name,
-        email: data.email,
+        email: emailNormalized,
         password: hashedPassword,
       },
     });
@@ -88,8 +86,9 @@ export class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<AuthTokens> {
-    const user = await prisma.user.findUnique({
-      where: { email: credentials.email },
+    const emailNormalized = String(credentials.email).trim().toLowerCase();
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: emailNormalized, mode: 'insensitive' } },
     });
 
     if (!user) {
@@ -183,8 +182,9 @@ export class AuthService {
   }
 
   async requestPasswordReset(email: string): Promise<void> {
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const emailNormalized = String(email).trim().toLowerCase();
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: emailNormalized, mode: 'insensitive' } },
     });
     if (!user) {
       // Por seguridad, no revelamos si el email existe o no

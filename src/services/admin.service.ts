@@ -29,9 +29,9 @@ export class AdminService {
     avatar?: string;
     isEmailVerified?: boolean;
   }): Promise<UserPublic> {
-    // Verificar si el usuario ya existe
-    const existingUser = await prisma.user.findUnique({
-      where: { email: data.email },
+    const emailNormalized = String(data.email).trim().toLowerCase();
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: emailNormalized, mode: 'insensitive' } },
     });
     if (existingUser) {
       throw new ConflictError('El email ya está registrado');
@@ -45,11 +45,10 @@ export class AdminService {
     // Hash de contraseña
     const hashedPassword = await hashPassword(data.password);
 
-    // Crear nuevo usuario
     const user = await prisma.user.create({
       data: {
         name: data.name,
-        email: data.email,
+        email: emailNormalized,
         password: hashedPassword,
         role: data.role || 'student',
         phone: data.phone,
@@ -247,19 +246,43 @@ export class AdminService {
   }
 
   /**
-   * Eliminar un usuario (soft delete o hard delete según necesidad)
+   * Eliminar un usuario (hard delete).
+   * No se puede si tiene pedidos, es instructor de cursos o tiene posts.
    */
   async deleteUser(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
+      include: {
+        _count: {
+          select: {
+            orders: true,
+            instructorCourses: true,
+            blogPosts: true,
+          },
+        },
+      },
     });
 
     if (!user) {
       throw new NotFoundError('Usuario no encontrado');
     }
 
-    // Hard delete - eliminar completamente
-    // En producción podrías hacer soft delete
+    if (user._count.orders > 0) {
+      throw new ConflictError(
+        'No se puede eliminar: el usuario tiene pedidos asociados. Desactívalo en lugar de eliminarlo.'
+      );
+    }
+    if (user._count.instructorCourses > 0) {
+      throw new ConflictError(
+        'No se puede eliminar: el usuario es instructor de cursos. Reasigna los cursos a otro instructor.'
+      );
+    }
+    if (user._count.blogPosts > 0) {
+      throw new ConflictError(
+        'No se puede eliminar: el usuario tiene publicaciones en el blog. Reasigna los posts o desactívalo.'
+      );
+    }
+
     await prisma.user.delete({
       where: { id: userId },
     });

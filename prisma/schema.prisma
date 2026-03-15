@@ -87,10 +87,26 @@ model CourseCategory {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  courses Course[]
+  courses          Course[]
+  categoryDiscount CategoryDiscount?
+  coupons          Coupon[]
 
   @@index([slug])
   @@map("course_categories")
+}
+
+// Descuentos por categoría (permanentes): cantidad de cursos → %
+// tiers: { "1": 25, "2": 30, "3": 35, "4": 35, "5": 40, "6": 40, "7": 50 }
+model CategoryDiscount {
+  id         String   @id @default(cuid())
+  categoryId String   @unique
+  tiers      Json     // { "1": 25, "2": 30, ... } cantidad → porcentaje
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category CourseCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("category_discounts")
 }
 
 // Elementos reutilizables del gestor de contenidos: banners, carruseles, CTAs, etc.
@@ -220,6 +236,7 @@ model Coupon {
   code        String     @unique
   type        CouponType
   value       Float
+  categoryId  String?    // null = global, con valor = solo para esa categoría (eventos especiales)
   minPurchase Float?
   maxDiscount Float?
   validFrom   DateTime
@@ -230,10 +247,12 @@ model Coupon {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  orders Order[]
+  category CourseCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  orders   Order[]
 
   @@index([code])
   @@index([isActive])
+  @@index([categoryId])
   @@map("coupons")
 }
 

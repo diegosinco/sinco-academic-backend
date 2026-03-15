@@ -3,6 +3,7 @@ import Joi from 'joi';
 import { adminController } from '../controllers/admin.controller';
 import { contentController } from '../controllers/content.controller';
 import { categoryController } from '../controllers/category.controller';
+import { categoryDiscountController } from '../controllers/categoryDiscount.controller';
 import { authenticate } from '../middlewares/auth';
 import { requireAdmin } from '../middlewares/authorize';
 import { validateRequest } from '../middlewares/validateRequest';
@@ -72,6 +73,15 @@ const updateCategorySchema = Joi.object({
   color: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).optional().allow('', null),
 }).min(1);
 
+const createCategoryDiscountSchema = Joi.object({
+  categoryId: Joi.string().required(),
+  tiers: Joi.object().pattern(Joi.string(), Joi.number().min(0).max(100)).required().min(1),
+});
+
+const updateCategoryDiscountSchema = Joi.object({
+  tiers: Joi.object().pattern(Joi.string(), Joi.number().min(0).max(100)).min(1),
+}).min(1);
+
 // Rutas públicas (solo requieren autenticación)
 // Verificar si el usuario es admin (útil para el frontend)
 // Cualquier usuario autenticado puede verificar su rol
@@ -100,6 +110,26 @@ router.put(
   categoryController.update.bind(categoryController)
 );
 router.delete('/categories/:id', categoryController.delete.bind(categoryController));
+
+// CRUD Descuentos por categoría
+router.get('/category-discounts', categoryDiscountController.getAll.bind(categoryDiscountController));
+router.get(
+  '/category-discounts/category/:categoryId',
+  categoryDiscountController.getByCategoryId.bind(categoryDiscountController)
+);
+router.get('/category-discounts/:id', categoryDiscountController.getById.bind(categoryDiscountController));
+router.post(
+  '/category-discounts',
+  createLimiter,
+  validateRequest(createCategoryDiscountSchema),
+  categoryDiscountController.create.bind(categoryDiscountController)
+);
+router.put(
+  '/category-discounts/:id',
+  validateRequest(updateCategoryDiscountSchema),
+  categoryDiscountController.update.bind(categoryDiscountController)
+);
+router.delete('/category-discounts/:id', categoryDiscountController.delete.bind(categoryDiscountController));
 
 // Gestión de usuarios (solo admin)
 router.post(
